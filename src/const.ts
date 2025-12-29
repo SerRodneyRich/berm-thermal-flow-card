@@ -87,9 +87,9 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - 3 column layout
+  // Card dimensions - 3 column layout, MUCH taller for stacked rooms
   width: 1400,
-  height: 1400,
+  height: 2000,
 
   // Node sizes - MASSIVE circles
   outside_radius: 150,
@@ -103,10 +103,10 @@ export const LAYOUT = {
   greenhouse_x: 1150,    // Column 3 (right)
 
   // Vertical positions
-  outside_y: 700,        // Outside centered vertically
-  room_start_y: 180,     // First room starts here
-  room_spacing: 200,     // Vertical space between rooms
-  greenhouse_y: 700,     // Greenhouse centered vertically
+  outside_y: 1000,       // Outside centered vertically in tall card
+  room_start_y: 200,     // First room starts here
+  room_spacing: 310,     // Room diameter (280) + 30px gap = 310
+  greenhouse_y: 1000,    // Greenhouse centered vertically
 
   // Margins
   margin_left: 100,
