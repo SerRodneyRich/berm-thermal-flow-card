@@ -25,17 +25,12 @@ export function validateConfig(config: any): BermThermalFlowCardConfig {
     throw new Error(ERRORS.MISSING_OUTSIDE);
   }
 
-  // Ensure fans and rooms arrays exist
-  if (!Array.isArray(config.entities.fans)) {
-    config.entities.fans = [];
-  }
+  // Ensure fans and rooms arrays exist and create mutable copies
+  const fans = Array.isArray(config.entities.fans) ? config.entities.fans : [];
+  const rooms = Array.isArray(config.entities.rooms) ? config.entities.rooms : [];
 
-  if (!Array.isArray(config.entities.rooms)) {
-    config.entities.rooms = [];
-  }
-
-  // Validate fan configurations
-  config.entities.fans.forEach((fan: any, index: number) => {
+  // Validate fan configurations and create mutable copies with defaults
+  const processedFans = fans.map((fan: any, index: number) => {
     if (!fan.name) {
       throw new Error(`Fan at index ${index} is missing 'name'`);
     }
@@ -43,14 +38,15 @@ export function validateConfig(config: any): BermThermalFlowCardConfig {
       throw new Error(`Fan '${fan.name}' is missing 'speed' entity`);
     }
 
-    // Apply default power map if not provided
-    if (!fan.power_map) {
-      fan.power_map = DEFAULT_FAN_POWER_MAP;
-    }
+    // Create new object with default power map if not provided
+    return {
+      ...fan,
+      power_map: fan.power_map || DEFAULT_FAN_POWER_MAP,
+    };
   });
 
   // Validate room configurations
-  config.entities.rooms.forEach((room: any, index: number) => {
+  rooms.forEach((room: any, index: number) => {
     if (!room.name) {
       throw new Error(`Room at index ${index} is missing 'name'`);
     }
@@ -60,9 +56,9 @@ export function validateConfig(config: any): BermThermalFlowCardConfig {
 
     // Validate fan_index if provided
     if (room.fan_index !== undefined && room.fan_index !== null) {
-      if (room.fan_index < 0 || room.fan_index >= config.entities.fans.length) {
+      if (room.fan_index < 0 || room.fan_index >= processedFans.length) {
         throw new Error(
-          `Room '${room.name}' has invalid fan_index ${room.fan_index}. Must be between 0 and ${config.entities.fans.length - 1}`
+          `Room '${room.name}' has invalid fan_index ${room.fan_index}. Must be between 0 and ${processedFans.length - 1}`
         );
       }
     }
@@ -73,8 +69,8 @@ export function validateConfig(config: any): BermThermalFlowCardConfig {
     type: 'custom:berm-thermal-flow-card',
     entities: {
       outside: config.entities.outside,
-      fans: config.entities.fans,
-      rooms: config.entities.rooms,
+      fans: processedFans,
+      rooms: rooms,
       greenhouse: config.entities.greenhouse,
     },
     colors: deepMerge(DEFAULT_COLORS, config.colors || {}),
