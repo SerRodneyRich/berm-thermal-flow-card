@@ -1,0 +1,217 @@
+# Example configuration for Berm Thermal Flow Card
+# This configuration matches the HALink v7 automation setup
+
+# Minimal configuration (just the essentials)
+minimal:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.outdoor_temperature
+    fans:
+      - name: Garage
+        speed: input_number.last_commanded_fan_speed_garage
+    rooms:
+      - name: Garage
+        temperature: sensor.garage_temperature
+        fan_index: 0
+
+# Basic configuration (common use case)
+basic:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.mandalore_sensors_apparent_temperature
+      rate: sensor.external_temp_rate
+    fans:
+      - name: Garage
+        speed: input_number.last_commanded_fan_speed_garage
+      - name: Cool Room
+        speed: input_number.last_commanded_fan_speed_cool_room
+      - name: Kitchen
+        speed: input_number.last_commanded_fan_speed_kitchen
+    rooms:
+      - name: Garage
+        temperature: sensor.new_device_2_temperature
+        delta: sensor.garage_temp_delta
+        fan_index: 0
+      - name: Cool Room
+        temperature: sensor.new_device_5_temperature
+        delta: sensor.cool_room_delta_temp
+        fan_index: 1
+      - name: Kitchen
+        temperature: sensor.new_device_temperature
+        delta: sensor.kitchen_delta_temp
+        fan_index: 2
+
+# Full HALink v7 configuration (all 6 fans, all rooms, greenhouse)
+full_halink_v7:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.mandalore_sensors_apparent_temperature
+      rate: sensor.external_temp_rate
+    fans:
+      - name: Garage
+        speed: input_number.last_commanded_fan_speed_garage
+        icon: mdi:fan
+      - name: Cool Room
+        speed: input_number.last_commanded_fan_speed_cool_room
+        icon: mdi:fan
+      - name: Kitchen
+        speed: input_number.last_commanded_fan_speed_kitchen
+        icon: mdi:fan
+      - name: Living Room
+        speed: input_number.last_commanded_fan_speed_living_room
+        icon: mdi:fan
+      - name: Bedroom
+        speed: input_number.last_commanded_fan_speed_bedroom
+        icon: mdi:fan
+      - name: Office
+        speed: input_number.last_commanded_fan_speed_office
+        icon: mdi:fan-off
+        offline: true  # Office fan is currently offline
+    rooms:
+      - name: Garage
+        temperature: sensor.new_device_2_temperature
+        delta: sensor.garage_temp_delta
+        desired_temp: input_number.desired_temp_garage
+        fan_index: 0
+      - name: Cool Room
+        temperature: sensor.new_device_5_temperature
+        delta: sensor.cool_room_delta_temp
+        desired_temp: input_number.desired_temp_cool_room
+        fan_index: 1
+      - name: Kitchen
+        temperature: sensor.new_device_temperature
+        delta: sensor.kitchen_delta_temp
+        desired_temp: input_number.desired_temp_kitchen
+        fan_index: 2
+      - name: Living Room
+        temperature: sensor.new_device_temperature
+        delta: sensor.living_room_delta_temp
+        desired_temp: input_number.desired_temp_living_room
+        fan_index: 3
+      - name: Bedroom
+        temperature: sensor.new_device_3_temperature
+        delta: sensor.bedroom_delta_temp
+        desired_temp: input_number.desired_temp_bedroom
+        fan_index: 4
+      - name: Bathroom
+        temperature: sensor.bathroom_temperature
+        # No fan_index - this is a static room that receives air from adjacent rooms
+        # Bathroom gets air from both Office and Bedroom
+    greenhouse:
+      temperature: sensor.greenhouse_temperature
+      delta: sensor.greenhouse_delta_temp
+      enabled: true
+  colors:
+    cold: "#2196F3"          # Blue
+    comfort_low: "#4CAF50"   # Green
+    comfort_high: "#8BC34A"  # Light green
+    warm: "#FF9800"          # Orange
+    hot: "#F44336"           # Red
+  temperature_thresholds:
+    cold: 60        # Below 60°F is cold
+    comfort_low: 68  # Comfort zone starts at 68°F
+    comfort_high: 74 # Comfort zone ends at 74°F
+    warm: 78        # Above 78°F is warm
+    hot: 85         # Above 85°F is hot
+  animation:
+    enabled: true
+    min_flow_rate: 0.75  # Fastest animation (for speed 10)
+    max_flow_rate: 6     # Slowest animation (for speed 1)
+    dot_size: 6          # Size of animated dots in pixels
+    dots_per_line: 3     # Number of dots per flow line
+  display:
+    show_power: true              # Show power consumption on fans
+    show_rate_of_change: true     # Show temperature rate of change
+    temperature_unit: F           # Use Fahrenheit
+    compact_mode: false           # Use full layout
+    show_labels: true             # Show room/fan labels
+
+# Custom colors and thresholds example
+custom_colors:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.outdoor_temperature
+    fans:
+      - name: Fan 1
+        speed: input_number.fan_1_speed
+    rooms:
+      - name: Room 1
+        temperature: sensor.room_1_temperature
+        fan_index: 0
+  colors:
+    cold: "#00BCD4"          # Cyan
+    comfort_low: "#009688"   # Teal
+    comfort_high: "#CDDC39"  # Lime
+    warm: "#FF5722"          # Deep orange
+    hot: "#E91E63"           # Pink
+  temperature_thresholds:
+    cold: 55
+    comfort_low: 65
+    comfort_high: 72
+    warm: 80
+    hot: 90
+
+# Compact mode example (for small screens)
+compact:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.outdoor_temperature
+    fans:
+      - name: Garage
+        speed: input_number.fan_speed_garage
+    rooms:
+      - name: Garage
+        temperature: sensor.garage_temperature
+        fan_index: 0
+  display:
+    show_power: false           # Hide power to save space
+    show_rate_of_change: false  # Hide rate of change to save space
+    compact_mode: true          # Enable compact layout
+    show_labels: true
+
+# No animations example (better performance on older devices)
+no_animations:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.outdoor_temperature
+    fans:
+      - name: Fan 1
+        speed: input_number.fan_1_speed
+    rooms:
+      - name: Room 1
+        temperature: sensor.room_1_temperature
+        fan_index: 0
+  animation:
+    enabled: false  # Disable all animations
+
+# Custom power map example (different fan model)
+custom_power_map:
+  type: custom:berm-thermal-flow-card
+  entities:
+    outside:
+      temperature: sensor.outdoor_temperature
+    fans:
+      - name: High Power Fan
+        speed: input_number.high_power_fan_speed
+        power_map:
+          "0": 0
+          "1": 25
+          "2": 35
+          "3": 45
+          "4": 60
+          "5": 75
+          "6": 90
+          "7": 105
+          "8": 120
+          "9": 135
+          "10": 150
+    rooms:
+      - name: Room 1
+        temperature: sensor.room_1_temperature
+        fan_index: 0
