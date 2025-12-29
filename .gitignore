@@ -5,12 +5,10 @@ yarn.lock
 pnpm-lock.yaml
 
 # Build output
-dist/
 *.js.map
 *.d.ts
 
-# BUT: Don't ignore the main card file (needed for HACS)
-!berm-thermal-flow-card.js
+# NOTE: dist/ is NOT ignored - HACS needs it!
 
 # IDEs
 .vscode/
