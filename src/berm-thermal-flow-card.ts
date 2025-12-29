@@ -1,4 +1,4 @@
-import { LitElement, html, TemplateResult, PropertyValues } from 'lit';
+import { LitElement, html, svg, TemplateResult, SVGTemplateResult, PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 
@@ -262,10 +262,10 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderSVG(cardState: CardState): TemplateResult {
+  private _renderSVG(cardState: CardState): SVGTemplateResult {
     const flowLines = this._generateFlowLines(cardState);
 
-    return html`
+    return svg`
       <svg viewBox="0 0 ${LAYOUT.width} ${LAYOUT.height}" xmlns="http://www.w3.org/2000/svg">
         <!-- Flow lines (drawn first, behind nodes) -->
         <g class="flow-lines">
@@ -291,10 +291,10 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderFlowLine(line: FlowLine): TemplateResult {
+  private _renderFlowLine(line: FlowLine): SVGTemplateResult {
     const { animation } = this._config!;
 
-    return html`
+    return svg`
       <g class="flow-line-group">
         <!-- Base line -->
         <path
@@ -310,16 +310,16 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderFlowDots(line: FlowLine): TemplateResult {
+  private _renderFlowDots(line: FlowLine): SVGTemplateResult {
     const { animation } = this._config!;
     const dotCount = animation?.dots_per_line || 3;
     const dotSize = animation?.dot_size || 6;
 
     // Create multiple dots with staggered start times using SVG animateMotion
-    return html`
+    return svg`
       ${Array.from({ length: dotCount }, (_, i) => {
         const delay = (line.animationDuration / dotCount) * i;
-        return html`
+        return svg`
           <circle
             class="flow-dot"
             r="${dotSize / 2}"
@@ -345,14 +345,14 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderOutsideNode(cardState: CardState): TemplateResult {
+  private _renderOutsideNode(cardState: CardState): SVGTemplateResult {
     const { outside } = cardState;
     const { display } = this._config!;
     const x = LAYOUT.width / 2;
     const y = LAYOUT.outside_y;
     const r = LAYOUT.outside_radius;
 
-    return html`
+    return svg`
       <g class="node ${CSS_CLASSES.outside}" data-entity="${this._config!.entities.outside.temperature}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.2" />
 
@@ -362,7 +362,7 @@ export class BermThermalFlowCard extends LitElement {
         </text>
 
         <!-- Rate of change (if available and enabled) -->
-        ${display?.show_rate_of_change && outside.rate !== undefined ? html`
+        ${display?.show_rate_of_change && outside.rate !== undefined ? svg`
           <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(outside.rate)}
           </text>
@@ -374,13 +374,13 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderFanNode(fan: FanState, index: number, totalFans: number): TemplateResult {
+  private _renderFanNode(fan: FanState, index: number, totalFans: number): SVGTemplateResult {
     const { display } = this._config!;
     const x = this._getFanX(index, totalFans);
     const y = LAYOUT.fan_y;
     const r = LAYOUT.fan_radius;
 
-    return html`
+    return svg`
       <g class="node ${CSS_CLASSES.fan} ${fan.offline ? 'offline' : ''}" data-fan-index="${index}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="#808080" fill-opacity="${fan.offline ? 0.1 : 0.3}" />
 
@@ -390,7 +390,7 @@ export class BermThermalFlowCard extends LitElement {
         </text>
 
         <!-- Power consumption (if enabled) -->
-        ${display?.show_power && !fan.offline ? html`
+        ${display?.show_power && !fan.offline ? svg`
           <text x="${x}" y="${y + 10}" class="${CSS_CLASSES.secondary_text}">
             ${formatPower(fan.power)}
           </text>
@@ -399,21 +399,21 @@ export class BermThermalFlowCard extends LitElement {
         <!-- Label -->
         <text x="${x}" y="${y + r + 20}" class="${CSS_CLASSES.label}">${fan.name}</text>
 
-        ${fan.offline ? html`
+        ${fan.offline ? svg`
           <text x="${x}" y="${y + r + 35}" class="offline-text">OFFLINE</text>
         ` : ''}
       </g>
     `;
   }
 
-  private _renderRoomNode(room: RoomState, index: number, totalRooms: number): TemplateResult {
+  private _renderRoomNode(room: RoomState, index: number, totalRooms: number): SVGTemplateResult {
     const { display } = this._config!;
     const x = this._getRoomX(index, totalRooms);
     const y = LAYOUT.room_y;
     const r = LAYOUT.room_radius;
     const isStatic = room.fan_index === undefined || room.fan_index === null;
 
-    return html`
+    return svg`
       <g class="node ${CSS_CLASSES.room} ${isStatic ? 'static' : ''}" data-room-index="${index}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.3" />
 
@@ -423,7 +423,7 @@ export class BermThermalFlowCard extends LitElement {
         </text>
 
         <!-- Rate of change (if available and enabled) -->
-        ${display?.show_rate_of_change && room.delta !== undefined ? html`
+        ${display?.show_rate_of_change && room.delta !== undefined ? svg`
           <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(room.delta)}
           </text>
@@ -435,13 +435,13 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderGreenhouseNode(greenhouse: GreenhouseState): TemplateResult {
+  private _renderGreenhouseNode(greenhouse: GreenhouseState): SVGTemplateResult {
     const { display } = this._config!;
     const x = LAYOUT.width / 2;
     const y = LAYOUT.greenhouse_y;
     const r = LAYOUT.greenhouse_radius;
 
-    return html`
+    return svg`
       <g class="node ${CSS_CLASSES.greenhouse}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.3" />
 
@@ -451,7 +451,7 @@ export class BermThermalFlowCard extends LitElement {
         </text>
 
         <!-- Rate of change (if available and enabled) -->
-        ${display?.show_rate_of_change && greenhouse.delta !== undefined ? html`
+        ${display?.show_rate_of_change && greenhouse.delta !== undefined ? svg`
           <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(greenhouse.delta)}
           </text>
