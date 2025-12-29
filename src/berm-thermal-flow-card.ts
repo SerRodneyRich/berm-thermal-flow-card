@@ -103,8 +103,15 @@ export class BermThermalFlowCard extends LitElement {
   protected updated(changedProps: PropertyValues): void {
     super.updated(changedProps);
 
-    if (changedProps.has('hass') && this.hass && this._loading) {
-      this._loading = false;
+    if (changedProps.has('hass') && this.hass) {
+      if (this._loading) {
+        this._loading = false;
+      }
+      // Ensure card state is computed on first hass update
+      if (!this._cardState) {
+        this._updateCardState();
+        this.requestUpdate();
+      }
     }
   }
 
