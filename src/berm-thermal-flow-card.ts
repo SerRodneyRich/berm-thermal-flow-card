@@ -41,9 +41,10 @@ declare global {
 
 @customElement(CARD_TYPE)
 export class BermThermalFlowCard extends LitElement {
-  public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    throw new Error('Visual editor not yet implemented. Please use YAML mode.');
-  }
+  // No visual editor - users must use YAML mode
+  // public static async getConfigElement(): Promise<LovelaceCardEditor> {
+  //   return undefined as any;
+  // }
 
   public static getStubConfig(): Record<string, unknown> {
     return {
