@@ -87,29 +87,29 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - increased for better readability
-  width: 1000,
-  height: 850,
+  // Card dimensions - much larger for no overlaps
+  width: 1600,
+  height: 1100,
 
   // Node sizes - significantly larger like Power Flow Plus
   outside_radius: 90,
   fan_radius: 75,
   room_radius: 85,
-  greenhouse_radius: 80,
+  greenhouse_radius: 85,
 
-  // Spacing - more generous spacing between nodes
-  fan_spacing: 180,
-  room_spacing: 180,
+  // Spacing - generous spacing to prevent overlaps
+  fan_spacing: 260,
+  room_spacing: 260,
 
-  // Vertical positions - more vertical space between rows
-  outside_y: 120,
-  fan_y: 320,
-  room_y: 620,
-  greenhouse_y: 760,
+  // Vertical positions - much more vertical space between rows
+  outside_y: 140,
+  fan_y: 380,
+  room_y: 720,
+  greenhouse_y: 980,
 
   // Margins
-  margin_left: 60,
-  margin_top: 30,
+  margin_left: 80,
+  margin_top: 40,
 
   // Text sizes - much larger for readability
   primary_font_size: 28,

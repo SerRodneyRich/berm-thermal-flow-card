@@ -463,8 +463,8 @@ export class BermThermalFlowCard extends LitElement {
           </text>
         ` : ''}
 
-        <!-- Label (above circle for greenhouse since it's at bottom) -->
-        <text x="${x}" y="${y - r - 15}" class="${CSS_CLASSES.label}">Greenhouse</text>
+        <!-- Label (below circle, consistent with other nodes) -->
+        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">Greenhouse</text>
       </g>
     `;
   }

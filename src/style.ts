@@ -30,8 +30,8 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
-    min-height: 500px;
-    aspect-ratio: 1000 / 850;
+    min-height: 600px;
+    aspect-ratio: 1600 / 1100;
     display: block;
   }
 
