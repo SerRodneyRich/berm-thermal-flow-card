@@ -30,8 +30,8 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
-    min-height: 900px;
-    aspect-ratio: 1400 / 1600;
+    min-height: 850px;
+    aspect-ratio: 1400 / 1400;
     display: block;
   }
 
@@ -63,20 +63,20 @@ export const styles = css`
 
   /* Text styles */
   .primary-text {
-    font-size: 40px;
+    font-size: 42px;
     font-weight: bold;
     fill: var(--primary-text-color);
     text-anchor: middle;
   }
 
   .secondary-text {
-    font-size: 20px;
+    font-size: 22px;
     fill: var(--secondary-text-color);
     text-anchor: middle;
   }
 
   .label-text {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 500;
     fill: #ffffff;  /* White labels for dark background */
     text-anchor: middle;
@@ -84,16 +84,7 @@ export const styles = css`
 
   /* Icon styles */
   .node-icon {
-    font-size: 64px;
-    fill: var(--primary-text-color);
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-
-  /* Fan number style - large and centered */
-  .fan-number {
-    font-size: 56px;
-    font-weight: bold;
+    font-size: 70px;
     fill: var(--primary-text-color);
     text-anchor: middle;
     dominant-baseline: middle;

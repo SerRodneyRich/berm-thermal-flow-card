@@ -170,80 +170,54 @@ export class BermThermalFlowCard extends LitElement {
     const { fans, rooms } = cardState;
     const { animation } = this._config!;
 
-    // Calculate positions
-    const fanY = LAYOUT.fan_y;
-    const roomY = LAYOUT.room_y_row1;
+    // 3-column layout: Outside (left) -> Rooms (middle)
+    const outsideX = LAYOUT.outside_x;
     const outsideY = LAYOUT.outside_y;
-    const outsideX = LAYOUT.width / 2;
+    const roomX = LAYOUT.room_x;
 
-    // Lines from outside to fans
-    fans.forEach((fan, index) => {
-      const fanX = this._getFanX(index, fans.length);
-      const active = fan.speed > 0 && !fan.offline;
+    // Lines from outside directly to each room
+    rooms.forEach((room, roomIndex) => {
+      const roomY = this._getRoomY(roomIndex);
+      const fanIndex = room.fan_index;
+
+      // Determine if this room has an active fan
+      const fan = (fanIndex !== undefined && fanIndex !== null && fans[fanIndex]) ? fans[fanIndex] : null;
+      const active = fan ? (fan.speed > 0 && !fan.offline) : false;
+      const speed = fan ? fan.speed : 0;
 
       lines.push({
-        id: `outside-fan-${index}`,
-        path: generatePath(outsideX, outsideY + LAYOUT.outside_radius, fanX, fanY - LAYOUT.fan_radius),
+        id: `outside-room-${roomIndex}`,
+        path: generatePath(
+          outsideX + LAYOUT.outside_radius,
+          outsideY,
+          roomX - LAYOUT.room_radius,
+          roomY
+        ),
         from: { x: outsideX, y: outsideY },
-        to: { x: fanX, y: fanY },
-        speed: fan.speed,
-        animationDuration: active ? getAnimationDuration(fan.speed, animation!) : 0,
-        color: cardState.outside.color,
+        to: { x: roomX, y: roomY },
+        speed: speed,
+        animationDuration: active ? getAnimationDuration(speed, animation!) : 0,
+        color: active ? room.color : '#666',
         active: active,
       });
-    });
-
-    // Lines from fans to rooms
-    rooms.forEach((room, roomIndex) => {
-      if (room.fan_index !== undefined && room.fan_index !== null && room.fan_index >= 0 && room.fan_index < fans.length) {
-        const fan = fans[room.fan_index];
-        const fanX = this._getFanX(room.fan_index, fans.length);
-        const roomX = this._getRoomX(roomIndex, rooms.length);
-        const active = fan.speed > 0 && !fan.offline;
-
-        lines.push({
-          id: `fan${room.fan_index}-room${roomIndex}`,
-          path: generatePath(fanX, fanY + LAYOUT.fan_radius, roomX, roomY - LAYOUT.room_radius),
-          from: { x: fanX, y: fanY },
-          to: { x: roomX, y: roomY },
-          speed: fan.speed,
-          animationDuration: active ? getAnimationDuration(fan.speed, animation!) : 0,
-          color: room.color,
-          active: active,
-        });
-      }
     });
 
     return lines;
   }
 
-  /**
-   * Calculate X position for fan node
-   */
-  private _getFanX(index: number, totalFans: number): number {
-    const totalWidth = LAYOUT.width - 2 * LAYOUT.margin_left;
-    const spacing = totalWidth / (totalFans + 1);
-    return LAYOUT.margin_left + spacing * (index + 1);
-  }
 
   /**
-   * Calculate X position for room node (2 rows of 3)
+   * Calculate X position for room node (all in column 2)
    */
   private _getRoomX(index: number, totalRooms: number): number {
-    const roomsPerRow = 3;
-    const rowIndex = index % roomsPerRow;  // Position in the row (0, 1, 2)
-    const totalWidth = LAYOUT.width - 2 * LAYOUT.margin_left;
-    const spacing = totalWidth / (roomsPerRow + 1);
-    return LAYOUT.margin_left + spacing * (rowIndex + 1);
+    return LAYOUT.room_x;  // All rooms in same column
   }
 
   /**
-   * Calculate Y position for room node (2 rows of 3)
+   * Calculate Y position for room node (stacked vertically)
    */
   private _getRoomY(index: number): number {
-    const roomsPerRow = 3;
-    const row = Math.floor(index / roomsPerRow);  // Which row (0 or 1)
-    return LAYOUT.room_y_row1 + (row * LAYOUT.row_spacing);
+    return LAYOUT.room_start_y + (index * LAYOUT.room_spacing);
   }
 
   protected render(): TemplateResult {
@@ -283,20 +257,15 @@ export class BermThermalFlowCard extends LitElement {
           ${flowLines.map(line => this._renderFlowLine(line))}
         </g>
 
-        <!-- Outside temperature node -->
+        <!-- Outside temperature node (left column) -->
         ${this._renderOutsideNode(cardState)}
 
-        <!-- Fan nodes -->
-        <g class="fan-nodes">
-          ${cardState.fans.map((fan, index) => this._renderFanNode(fan, index, cardState.fans.length))}
-        </g>
-
-        <!-- Room nodes -->
+        <!-- Room nodes (middle column, stacked vertically) -->
         <g class="room-nodes">
           ${cardState.rooms.map((room, index) => this._renderRoomNode(room, index, cardState.rooms.length))}
         </g>
 
-        <!-- Greenhouse node (if enabled) -->
+        <!-- Greenhouse node (right column, if enabled) -->
         ${cardState.greenhouse ? this._renderGreenhouseNode(cardState.greenhouse) : ''}
       </svg>
     `;
@@ -359,7 +328,7 @@ export class BermThermalFlowCard extends LitElement {
   private _renderOutsideNode(cardState: CardState): SVGTemplateResult {
     const { outside } = cardState;
     const { display } = this._config!;
-    const x = LAYOUT.width / 2;
+    const x = LAYOUT.outside_x;  // Column 1
     const y = LAYOUT.outside_y;
     const r = LAYOUT.outside_radius;
 
@@ -368,49 +337,26 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.15" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 50}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(outside.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 8}" class="node-icon">☁️</text>
+        <text x="${x}" y="${y + 10}" class="node-icon">☁️</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && outside.rate !== undefined ? svg`
-          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 35}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(outside.rate)}
           </text>
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">Outside</text>
+        <text x="${x}" y="${y + r + 38}" class="${CSS_CLASSES.label}">Outside</text>
       </g>
     `;
   }
 
-  private _renderFanNode(fan: FanState, index: number, totalFans: number): SVGTemplateResult {
-    const x = this._getFanX(index, totalFans);
-    const y = LAYOUT.fan_y;
-    const r = LAYOUT.fan_radius;
-
-    return svg`
-      <g class="node ${CSS_CLASSES.fan} ${fan.offline ? 'offline' : ''}" data-fan-index="${index}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="#808080" fill-opacity="${fan.offline ? 0.1 : 0.25}" />
-
-        <!-- Just the number in the center -->
-        <text x="${x}" y="${y}" class="fan-number">
-          ${fan.offline ? 'OFF' : fan.speed}
-        </text>
-
-        <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">${fan.name}</text>
-
-        ${fan.offline ? svg`
-          <text x="${x}" y="${y + r + 52}" class="offline-text">OFFLINE</text>
-        ` : ''}
-      </g>
-    `;
-  }
 
   private _renderRoomNode(room: RoomState, index: number, totalRooms: number): SVGTemplateResult {
     const { display } = this._config!;
@@ -424,29 +370,29 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.2" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 48}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(room.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 8}" class="node-icon">🏠</text>
+        <text x="${x}" y="${y + 10}" class="node-icon">🏠</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && room.delta !== undefined ? svg`
-          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 35}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(room.delta)}
           </text>
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">${room.name}</text>
+        <text x="${x}" y="${y + r + 36}" class="${CSS_CLASSES.label}">${room.name}</text>
       </g>
     `;
   }
 
   private _renderGreenhouseNode(greenhouse: GreenhouseState): SVGTemplateResult {
     const { display } = this._config!;
-    const x = LAYOUT.width / 2;
+    const x = LAYOUT.greenhouse_x;  // Column 3
     const y = LAYOUT.greenhouse_y;
     const r = LAYOUT.greenhouse_radius;
 
@@ -455,22 +401,22 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.2" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 50}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(greenhouse.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 8}" class="node-icon">🌿</text>
+        <text x="${x}" y="${y + 10}" class="node-icon">🌿</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && greenhouse.delta !== undefined ? svg`
-          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 35}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(greenhouse.delta)}
           </text>
         ` : ''}
 
-        <!-- Label (below circle, consistent with other nodes) -->
-        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">Greenhouse</text>
+        <!-- Label (below circle) -->
+        <text x="${x}" y="${y + r + 38}" class="${CSS_CLASSES.label}">Greenhouse</text>
       </g>
     `;
   }

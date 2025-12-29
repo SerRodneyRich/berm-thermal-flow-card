@@ -87,38 +87,38 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - MUCH LARGER for huge circles
+  // Card dimensions - 3 column layout
   width: 1400,
-  height: 1600,
+  height: 1400,
 
-  // Node sizes - MASSIVE like Power Flow Plus (those circles are HUGE!)
-  outside_radius: 140,
-  fan_radius: 120,
-  room_radius: 130,
-  greenhouse_radius: 130,
+  // Node sizes - MASSIVE circles
+  outside_radius: 150,
+  fan_radius: 0,  // No fan circles!
+  room_radius: 140,
+  greenhouse_radius: 150,
 
-  // Grid layout - 3 columns
-  column_spacing: 400,  // Horizontal space between columns
-  row_spacing: 340,     // Vertical space between rows
+  // 3-column positions (Outside | Rooms | Greenhouse)
+  outside_x: 250,        // Column 1 (left)
+  room_x: 700,           // Column 2 (middle)
+  greenhouse_x: 1150,    // Column 3 (right)
 
-  // Vertical positions for rows
-  outside_y: 180,       // Row 0: Outside (centered)
-  fan_y: 520,           // Row 1: Fans (5 across, will calculate positions)
-  room_y_row1: 860,     // Row 2: First 3 rooms
-  room_y_row2: 1200,    // Row 3: Next 3 rooms
-  greenhouse_y: 1440,   // Row 4: Greenhouse (centered)
+  // Vertical positions
+  outside_y: 700,        // Outside centered vertically
+  room_start_y: 180,     // First room starts here
+  room_spacing: 200,     // Vertical space between rooms
+  greenhouse_y: 700,     // Greenhouse centered vertically
 
   // Margins
   margin_left: 100,
   margin_top: 50,
 
   // Text sizes - HUGE
-  primary_font_size: 40,
-  secondary_font_size: 20,
-  label_font_size: 22,
+  primary_font_size: 42,
+  secondary_font_size: 22,
+  label_font_size: 24,
 
   // Icon sizes
-  icon_size: 64,
+  icon_size: 70,
 
   // Animation
   stroke_width: 6,
