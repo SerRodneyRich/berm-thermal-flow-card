@@ -30,6 +30,7 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
+    min-height: 300px;
     aspect-ratio: 1000 / 600;
     display: block;
   }
@@ -109,8 +110,7 @@ export const styles = css`
 
   /* Animated dots on flow lines */
   .flow-dot {
-    fill: currentColor;
-    opacity: 0.8;
+    /* Animation now handled by SVG animateMotion/animate elements */
   }
 
   /* Fan rotation animation */
@@ -139,27 +139,8 @@ export const styles = css`
   .fan-icon.speed-9 { animation-duration: 1s; }
   .fan-icon.speed-10 { animation-duration: 0.7s; }
 
-  /* Flow animation */
-  @keyframes flow {
-    0% {
-      offset-distance: 0%;
-      opacity: 0;
-    }
-    10% {
-      opacity: 0.8;
-    }
-    90% {
-      opacity: 0.8;
-    }
-    100% {
-      offset-distance: 100%;
-      opacity: 0;
-    }
-  }
-
-  .flow-dot {
-    animation: flow linear infinite;
-  }
+  /* Flow animation - now handled by SVG animateMotion/animate elements */
+  /* Removed CSS keyframe animation that used offset-path (not supported on SVG) */
 
   /* Pulse animation for temperature warnings */
   @keyframes pulse {

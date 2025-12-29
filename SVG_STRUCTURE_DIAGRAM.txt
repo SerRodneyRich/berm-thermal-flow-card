@@ -1,0 +1,280 @@
+================================================================================
+SVG RENDERING HIERARCHY & STRUCTURE DIAGRAM
+================================================================================
+
+PHYSICAL HIERARCHY (DOM):
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ <ha-card>                                                            │
+│   padding: 16px                                                      │
+│   background: white (or theme)                                       │
+│                                                                       │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │ .card-content                                                  │  │
+│  │ width: 100%                                                    │  │
+│  │ height: auto  ⚠️ (problem area)                               │  │
+│  │ position: relative                                             │  │
+│  │                                                                │  │
+│  │  ┌─────────────────────────────────────────────────────────┐ │  │
+│  │  │ <svg viewBox="0 0 1000 600">                            │ │  │
+│  │  │ width: 100%  ⚠️ (depends on parent)                    │ │  │
+│  │  │ height: auto ⚠️ (depends on aspect-ratio)              │ │  │
+│  │  │ aspect-ratio: 1000 / 600                               │ │  │
+│  │  │ display: block                                          │ │  │
+│  │  │                                                         │ │  │
+│  │  │  SVG COORDINATE SYSTEM: 1000px wide × 600px tall      │ │  │
+│  │  │  ┌─────────────────────────────────────────────────┐ │ │  │
+│  │  │  │ Y:80                                             │ │ │  │
+│  │  │  │  ●──────────●──────────●  (Outside Node)        │ │ │  │
+│  │  │  │             ✓ Visible area                       │ │ │  │
+│  │  │  │                                                  │ │ │  │
+│  │  │  │ Y:220                                            │ │ │  │
+│  │  │  │  ●    ●    ●    ●    ●    ●  (Fan Nodes)      │ │ │  │
+│  │  │  │                                                  │ │ │  │
+│  │  │  │ Y:450                                            │ │ │  │
+│  │  │  │  ●    ●    ●    ●    ●   (Room Nodes)        │ │ │  │
+│  │  │  │                                                  │ │ │  │
+│  │  │  │ Y:560                                            │ │ │  │
+│  │  │  │          ●──────────●  (Greenhouse - Optional) │ │ │  │
+│  │  │  │                                                  │ │ │  │
+│  │  │  └─────────────────────────────────────────────────┘ │ │  │
+│  │  │                                                         │ │  │
+│  │  │ Contains:                                              │ │  │
+│  │  │ ├── <g class="flow-lines">                           │ │  │
+│  │  │ │    ├── <path class="flow-line"> ... </path>       │ │  │
+│  │  │ │    └── <circle class="flow-dot"> ... </circle>   │ │  │
+│  │  │ │                                                     │ │  │
+│  │  │ ├── <g class="outside-node">                         │ │  │
+│  │  │ │    ├── <circle cx="500" cy="80" r="60" />        │ │  │
+│  │  │ │    └── <text> labels ... </text>                  │ │  │
+│  │  │ │                                                     │ │  │
+│  │  │ ├── <g class="fan-nodes">                            │ │  │
+│  │  │ │    └── <g class="fan-node"> (repeated)           │ │  │
+│  │  │ │         ├── <circle cx="x" cy="220" r="45" />    │ │  │
+│  │  │ │         └── <text> ... </text>                   │ │  │
+│  │  │ │                                                     │ │  │
+│  │  │ ├── <g class="room-nodes">                           │ │  │
+│  │  │ │    └── <g class="room-node"> (repeated)          │ │  │
+│  │  │ │         ├── <circle cx="x" cy="450" r="50" />    │ │  │
+│  │  │ │         └── <text> ... </text>                   │ │  │
+│  │  │ │                                                     │ │  │
+│  │  │ └── <g class="greenhouse-node"> (if enabled)        │ │  │
+│  │  │      ├── <circle cx="500" cy="560" r="55" />       │ │  │
+│  │  │      └── <text> ... </text>                         │ │  │
+│  │  │                                                         │ │  │
+│  │  └─────────────────────────────────────────────────────┘ │ │  │
+│  │                                                             │ │  │
+│  └─────────────────────────────────────────────────────────────┘ │  │
+│                                                                    │  │
+└────────────────────────────────────────────────────────────────────┘
+
+
+PROBLEM ZONE - SIZE CALCULATION FLOW:
+================================================================================
+
+Window/Container Width
+         │
+         ▼
+    has parent width?
+         │
+    ┌────┴────┐
+    │          │
+   YES        NO
+    │          │
+    ▼          ▼
+width:100%    parent = 0px wide
+becomes       ├──────────────────┐
+specific      │  ⚠️ PROBLEM HERE │
+px size       │  aspect-ratio    │
+    │         │  cannot work     │
+    │         │  without width   │
+    ▼         └──────────────────┘
+SVG height
+calculated = width × (height/width ratio)
+           = width × (600/1000)
+           = width × 0.6
+
+EXAMPLE SCENARIOS:
+─────────────────────────────────────────────────────────────────────────────
+
+Scenario A (GOOD): Parent width = 800px
+  .card-content width = 800px (from width:100%)
+  SVG width = 800px (from width:100%)
+  SVG height = 800 × 0.6 = 480px ✅ VISIBLE
+
+Scenario B (BAD): Parent width = 0px or collapsed
+  .card-content width = 0px
+  SVG width = 0px
+  SVG height = 0 × 0.6 = 0px ❌ INVISIBLE
+
+Scenario C (BAD): Parent has display:none or visibility:hidden
+  All descendants invisible ❌
+
+
+CSS CASCADING ISSUE:
+================================================================================
+
+Current CSS chain:
+  .card-content { height: auto; }
+    └── svg { height: auto; aspect-ratio: 1000/600; }
+
+Problem:
+  1. .card-content height = auto
+     → Calculated from content height
+     → But svg height = 0 (because width is 0)
+     → So .card-content height also becomes 0
+     → Circular dependency!
+
+Solution:
+  svg { min-height: 400px; }
+     └── Forces SVG to always have minimum height
+         regardless of parent width
+
+Alternative:
+  .card-content { min-width: 400px; }
+     └── Forces parent to have minimum width
+         which allows aspect-ratio to work
+
+
+COLOR AND VISIBILITY ISSUE:
+================================================================================
+
+SVG elements use fill colors from:
+
+┌──────────────────────────────────────────────────────┐
+│ getTemperatureColor(temp)                            │
+├──────────────────────────────────────────────────────┤
+│ Returns interpolated hex color based on temperature  │
+│                                                       │
+│ Examples:                                             │
+│  < 60°F  → #2196F3 (Blue)                           │
+│  60-68°F → interpolated                             │
+│  68-74°F → #4CAF50 or #8BC34A (Greens)            │
+│  74-78°F → interpolated                             │
+│  78-85°F → #FF9800 (Orange)                         │
+│  > 85°F  → #F44336 (Red)                            │
+└──────────────────────────────────────────────────────┘
+
+However:
+  - Circles have fill-opacity: 0.2-0.3 (20-30% opacity)
+    → Very transparent, might not show
+  
+  - Text fill uses CSS variables:
+    var(--primary-text-color)  (should be dark #212121)
+    var(--secondary-text-color) (should be gray #727272)
+    
+  - If theme variables not loaded:
+    → Text becomes invisible (default color = black on black)
+
+
+ANIMATION PATH ISSUE:
+================================================================================
+
+Flow dots animation uses:
+
+<circle class="flow-dot" r="3" 
+        style="offset-path: path('M 500 140 Q 500 180...')">
+</circle>
+
+CSS:
+@keyframes flow {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+⚠️ PROBLEM: offset-path and offset-distance are EXPERIMENTAL
+  - Safari: Limited support
+  - Firefox: Limited support
+  - Chrome: Good support
+  - IE: No support
+
+Result: Dots may not animate or appear invisible
+
+
+NODE POSITIONING REFERENCE:
+================================================================================
+
+OUTSIDE NODE (Top):
+  cx="500" (center of 1000px width)
+  cy="80"  (80px from top)
+  r="60"   (60px radius)
+  ├─ Circle background (fill-opacity:0.2)
+  ├─ Temperature text (18px bold)
+  ├─ Rate text (12px smaller) [optional]
+  └─ Label "Outside" (14px)
+
+FAN NODES (Middle):
+  cy="220" (220px from top)
+  r="45"   (45px radius)
+  cx varies by position: margin_left + spacing × (index + 1)
+     with 6 fans: roughly x = 167, 333, 500, 667, 833, etc.
+  ├─ Circle background (gray #808080, fill-opacity:0.3)
+  ├─ Speed text (18px bold, 0-10)
+  ├─ Power text (12px smaller) [optional]
+  ├─ Label "Fan name" (14px)
+  └─ Offline badge [if offline]
+
+ROOM NODES (Bottom):
+  cy="450" (450px from top)
+  r="50"   (50px radius)
+  cx varies by position (same calculation as fans)
+  ├─ Circle background (colored by temp, fill-opacity:0.3)
+  ├─ Temperature text (18px bold)
+  ├─ Delta text (12px smaller) [optional]
+  └─ Label "Room name" (14px)
+
+GREENHOUSE NODE (Extra):
+  cy="560" (560px from top)
+  r="55"   (55px radius)
+  cx="500" (center)
+  ├─ Circle background (colored by temp, fill-opacity:0.3)
+  ├─ Temperature text (18px bold)
+  ├─ Delta text (12px smaller) [optional]
+  └─ Label "Greenhouse" (14px)
+
+FLOW LINES:
+  From: (cx_outside, cy_outside + 60) = (500, 140)
+  To:   (cx_fan, cy_fan - 45) = (varies, 175)
+  Path: Curved bezier using generatePath()
+  
+  Stroke: 3px if fan active, 1px if inactive
+  Color: outside.color when from outside
+         room.color when from fan to room
+
+================================================================================
+KEY MEASUREMENT RELATIONSHIPS
+================================================================================
+
+SVG viewBox:     0 0 1000 600
+Aspect ratio:    1000:600 = 1.667:1
+
+Node radii:
+  Outside:      60px (largest)
+  Greenhouse:   55px
+  Room:         50px
+  Fan:          45px (smallest)
+
+Vertical spacing:
+  Outside Y:      80px
+  Fan Y:         220px (gap: 140px)
+  Room Y:        450px (gap: 230px)
+  Greenhouse Y:  560px (gap: 110px)
+  Bottom edge:   600px (gap: 40px to greenhouse edge)
+
+Horizontal:
+  Margin left:   50px
+  Available:     1000 - 100 = 900px
+  
+  For 5 rooms: x = 50 + (900/6)×(n+1) = 50 + 150×(n+1)
+             n=0: 200px
+             n=1: 350px
+             n=2: 500px
+             n=3: 650px
+             n=4: 800px
+
+================================================================================
+END OF DIAGRAM
+================================================================================

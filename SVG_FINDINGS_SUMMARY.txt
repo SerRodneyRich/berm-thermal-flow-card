@@ -1,0 +1,315 @@
+================================================================================
+SVG RENDERING LOGIC - COMPREHENSIVE FINDINGS SUMMARY
+================================================================================
+
+PROJECT: berm-thermal-flow-card
+ISSUE: SVG components exist in DOM but not visible on UI
+
+================================================================================
+CHECKLIST RESULTS
+================================================================================
+
+1. SVG ELEMENTS CREATED?
+   STATUS: ✅ YES
+   LOCATION: src/berm-thermal-flow-card.ts (lines 265-291)
+   
+   - SVG element is created dynamically with proper template literal
+   - viewBox attribute: "0 0 1000 600" (from LAYOUT constants)
+   - xmlns attribute: "http://www.w3.org/2000/svg" (correct)
+   - Contains properly structured groups (flow-lines, fan-nodes, room-nodes, etc.)
+
+2. SVG CONTAINER HAS WIDTH/HEIGHT?
+   STATUS: ⚠️ PARTIAL ISSUE
+   LOCATION: src/style.ts (lines 24-35)
+   
+   SVG CSS:
+   - width: 100% ✅
+   - height: auto ⚠️ (relies on aspect-ratio)
+   - aspect-ratio: 1000 / 600 ✅
+   - display: block ✅
+   - NO min-height specified ❌ (POTENTIAL ISSUE)
+   - NO max-width specified ⚠️
+   
+   Parent (.card-content):
+   - width: 100% ✅
+   - height: auto ⚠️
+   - NO min-width specified ❌ (POTENTIAL ISSUE)
+
+3. VIEWBOX ATTRIBUTES?
+   STATUS: ✅ YES
+   VALUES: viewBox="0 0 1000 600"
+   - Correctly interpolated from LAYOUT.width and LAYOUT.height
+   - All elements positioned within bounds
+
+4. PARENT CONTAINERS HAVE DIMENSIONS?
+   STATUS: ⚠️ INCOMPLETE
+   
+   Container hierarchy:
+   <ha-card> (padding: 16px) ✅
+   └── .card-content (width: 100%, height: auto) ⚠️
+       └── SVG (width: 100%, height: auto, aspect-ratio: 1000/600) ⚠️
+   
+   ISSUE: If parent width is not forced to a specific value, the cascade 
+   of auto heights may result in 0 height SVG.
+
+5. CONDITIONAL RENDERING LOGIC?
+   STATUS: ✅ CORRECT
+   LOCATION: src/berm-thermal-flow-card.ts (lines 238-263)
+   
+   - Returns empty string if _config or hass is missing (no error shown)
+   - Shows error state if configuration validation fails
+   - Renders SVG only when both conditions pass
+   - No display: none applied to SVG
+   - No visibility: hidden applied to SVG
+
+================================================================================
+COMPONENT BREAKDOWN
+================================================================================
+
+SVG LAYOUT (1000 x 600 pixels):
+
+  Top Tier (Outside Node):
+  - Position: y=80 (from top)
+  - Radius: 60px
+  - Content: Temperature value, rate of change, label
+
+  Middle Tier (Fan Nodes):
+  - Position: y=220
+  - Radius: 45px each
+  - Count: Variable (from config)
+  - Content: Speed (0-10), Power (W), Name
+  - Special: Offline state (grayed out)
+
+  Bottom Tier (Room Nodes):
+  - Position: y=450
+  - Radius: 50px each
+  - Count: Variable (from config)
+  - Content: Temperature, Delta, Name
+  - Optional: Fan connection lines
+
+  Extra Tier (Greenhouse):
+  - Position: y=560 (if enabled)
+  - Radius: 55px
+  - Content: Temperature, Delta, Label
+
+FLOW LINES:
+- From Outside → Fans (top to middle)
+- From Fans → Rooms (middle to bottom)
+- Path: Curved bezier (src/utils/helpers.ts, line 177-191)
+- Stroke: 3px active, 1px inactive
+- Animation: Optional animated dots
+
+================================================================================
+KEY FILE LOCATIONS
+================================================================================
+
+Main Component:
+  /Users/beaubeau/Documents/GitHub/HALink/berm-thermal-flow-card/src/berm-thermal-flow-card.ts
+  
+  Critical methods:
+  - Line 238-263:   render()           - Main render method
+  - Line 265-291:   _renderSVG()       - SVG element creation
+  - Line 294-311:   _renderFlowLine()  - Flow line rendering
+  - Line 338-365:   _renderOutsideNode()
+  - Line 367-397:   _renderFanNode()
+  - Line 399-426:   _renderRoomNode()
+  - Line 428-454:   _renderGreenhouseNode()
+
+Styling:
+  /Users/beaubeau/Documents/GitHub/HALink/berm-thermal-flow-card/src/style.ts
+  
+  Critical sections:
+  - Line 4-10:      :host variables
+  - Line 24-35:     SVG and container styling ⚠️ MOST CRITICAL
+  - Line 64-90:     Text styling
+  - Line 93-108:    Flow line styling
+  - Line 142-162:   Animation keyframes
+
+Constants:
+  /Users/beaubeau/Documents/GitHub/HALink/berm-thermal-flow-card/src/const.ts
+  
+  - Line 89-122:    LAYOUT object (dimensions, positions, sizes)
+
+Utilities:
+  /Users/beaubeau/Documents/GitHub/HALink/berm-thermal-flow-card/src/utils/helpers.ts
+  
+  - Line 18-53:     getTemperatureColor() - Temperature-based coloring
+  - Line 177-191:   generatePath()      - SVG path generation
+
+================================================================================
+ROOT CAUSE ASSESSMENT
+================================================================================
+
+MOST LIKELY ISSUE (60% probability):
+  
+  Parent container collapse due to auto heights
+  
+  Problem:
+  - .card-content has width: 100% and height: auto
+  - SVG has width: 100% and height: auto, relying on aspect-ratio
+  - If .card-content width is 0 or very small, aspect-ratio cannot 
+    calculate proper height
+  - Result: SVG renders with 0 height, invisible
+  
+  Evidence:
+  - No explicit min-height on SVG
+  - No min-width on parent
+  - aspect-ratio works only when width is known
+
+SECONDARY ISSUES (20% combined):
+
+  1. Color visibility (10%)
+     - Circle fill-opacity: 0.2-0.3 (very transparent)
+     - Text fill depends on theme variables
+     - If theme colors not loaded: invisible text
+  
+  2. Shadow DOM CSS scoping (5%)
+     - CSS may not apply properly in Shadow DOM
+     - Home Assistant theme variables might not be available
+  
+  3. Experimental CSS (5%)
+     - offset-path used in animation (lines 328-330)
+     - Not supported in all browsers
+     - Dots might be invisible
+
+================================================================================
+DIAGNOSTIC STEPS
+================================================================================
+
+1. IMMEDIATE: Check container dimensions in browser DevTools
+   const container = document.querySelector('.card-content');
+   console.log(container.getBoundingClientRect());
+   
+   Expected: width > 0, height > 0
+   Actual: ?
+
+2. Check SVG computed dimensions
+   const svg = document.querySelector('svg');
+   const styles = window.getComputedStyle(svg);
+   console.log('SVG width:', styles.width);
+   console.log('SVG height:', styles.height);
+   console.log('SVG display:', styles.display);
+   
+   Expected: width = "100%" or specific px, height = calculated px
+   Actual: ?
+
+3. Check SVG content exists
+   console.log(svg.querySelectorAll('circle').length);
+   console.log(svg.querySelectorAll('text').length);
+   console.log(svg.querySelectorAll('path').length);
+   
+   Expected: All > 0 if configured
+   Actual: ?
+
+4. Check colors
+   const text = svg.querySelector('text');
+   console.log(window.getComputedStyle(text).fill);
+   
+   Expected: Hex color like #212121 or #2196F3
+   Actual: ?
+
+================================================================================
+RECOMMENDED FIXES (Priority Order)
+================================================================================
+
+PRIORITY 1 - Quick Fix (30 seconds each):
+
+  Fix 1a: Add min-height to SVG
+  Location: src/style.ts, line 30
+  
+  CURRENT:
+    svg {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1000 / 600;
+      display: block;
+    }
+  
+  CHANGE TO:
+    svg {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1000 / 600;
+      display: block;
+      min-height: 400px;
+      background-color: transparent;
+    }
+
+  Fix 1b: Add min-width to parent container
+  Location: src/style.ts, line 24
+  
+  CURRENT:
+    .card-content {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+  
+  CHANGE TO:
+    .card-content {
+      width: 100%;
+      height: auto;
+      position: relative;
+      min-width: 400px;
+    }
+
+PRIORITY 2 - Safety Fix (1 minute):
+
+  Fix 2: Ensure theme colors with fallbacks
+  Location: src/style.ts, line 4
+  
+  Ensure --primary-text-color has fallback to dark color
+  Ensure --secondary-text-color has fallback to medium gray
+
+PRIORITY 3 - Enhancement (5 minutes):
+
+  Fix 3: Increase circle opacity for visibility
+  Location: src/berm-thermal-flow-card.ts, lines 347, 375, 408, 436
+  
+  Change fill-opacity from 0.2-0.3 to 0.4-0.5
+  Ensure stroke-width on circles is visible (currently 2px)
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+After applying fixes:
+
+[ ] npm run build completes without errors
+[ ] Browser console shows no CSS errors
+[ ] Browser console shows no JavaScript errors
+[ ] SVG container has calculated height in DevTools
+[ ] Circle strokes visible (2px border around each node)
+[ ] Temperature text visible
+[ ] Flow lines visible (3px wide)
+[ ] Animated dots visible (if animation enabled)
+[ ] Responsive: Card looks good on mobile/desktop
+
+================================================================================
+DOCUMENTATION PROVIDED
+================================================================================
+
+1. SVG_RENDERING_ANALYSIS.md (COMPREHENSIVE)
+   - 9 major sections
+   - Complete code walkthrough
+   - Diagnostic console scripts
+   - Detailed fix recommendations
+   - Summary table
+
+2. SVG_DEBUG_QUICKSTART.md (QUICK REFERENCE)
+   - Quick cause analysis
+   - Copy-paste console debug script
+   - 4 quick fixes with time estimates
+   - Testing procedures
+   - Troubleshooting steps
+
+3. SVG_FINDINGS_SUMMARY.txt (THIS FILE)
+   - Executive overview
+   - All findings in one place
+   - File locations
+   - Root cause assessment
+   - Quick fix recommendations
+
+================================================================================
+END OF SUMMARY
+================================================================================

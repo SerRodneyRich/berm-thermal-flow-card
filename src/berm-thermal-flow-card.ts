@@ -315,7 +315,7 @@ export class BermThermalFlowCard extends LitElement {
     const dotCount = animation?.dots_per_line || 3;
     const dotSize = animation?.dot_size || 6;
 
-    // Create multiple dots with staggered start times
+    // Create multiple dots with staggered start times using SVG animateMotion
     return html`
       ${Array.from({ length: dotCount }, (_, i) => {
         const delay = (line.animationDuration / dotCount) * i;
@@ -324,12 +324,22 @@ export class BermThermalFlowCard extends LitElement {
             class="flow-dot"
             r="${dotSize / 2}"
             fill="${line.color}"
-            style="
-              offset-path: path('${line.path}');
-              animation-duration: ${line.animationDuration}s;
-              animation-delay: ${delay}s;
-            "
-          />
+          >
+            <animateMotion
+              dur="${line.animationDuration}s"
+              begin="${delay}s"
+              repeatCount="indefinite"
+              path="${line.path}"
+            />
+            <animate
+              attributeName="opacity"
+              values="0;0.8;0.8;0"
+              keyTimes="0;0.1;0.9;1"
+              dur="${line.animationDuration}s"
+              begin="${delay}s"
+              repeatCount="indefinite"
+            />
+          </circle>
         `;
       })}
     `;
