@@ -30,8 +30,9 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
-    min-height: 700px;
-    aspect-ratio: 1400 / 1200;
+    min-height: 600px;
+    max-height: 800px;
+    aspect-ratio: 1200 / 800;
     display: block;
   }
 
@@ -46,10 +47,9 @@ export const styles = css`
   }
 
   .node circle {
-    stroke-width: 6;
-    stroke: var(--primary-text-color);
     fill: none !important;  /* No background fills */
     transition: all 0.3s ease;
+    /* stroke and stroke-width set inline per node */
   }
 
   .node.offline circle {
@@ -64,27 +64,27 @@ export const styles = css`
 
   /* Text styles */
   .primary-text {
-    font-size: 42px;
+    font-size: 32px;
     font-weight: bold;
     fill: var(--primary-text-color);
     text-anchor: middle;
   }
 
   .secondary-text {
-    font-size: 22px;
+    font-size: 18px;
     fill: var(--secondary-text-color);
     text-anchor: middle;
   }
 
   .label-text {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
     fill: #ffffff !important;  /* White labels for dark background */
     text-anchor: middle;
   }
 
   .label {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
     fill: #ffffff !important;  /* White labels */
     text-anchor: middle;
@@ -92,7 +92,7 @@ export const styles = css`
 
   /* Icon styles */
   .node-icon {
-    font-size: 70px;
+    font-size: 56px;
     fill: var(--primary-text-color);
     text-anchor: middle;
     dominant-baseline: middle;
