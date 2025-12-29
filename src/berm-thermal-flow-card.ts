@@ -172,7 +172,7 @@ export class BermThermalFlowCard extends LitElement {
 
     // Calculate positions
     const fanY = LAYOUT.fan_y;
-    const roomY = LAYOUT.room_y;
+    const roomY = LAYOUT.room_y_row1;
     const outsideY = LAYOUT.outside_y;
     const outsideX = LAYOUT.width / 2;
 
@@ -227,12 +227,23 @@ export class BermThermalFlowCard extends LitElement {
   }
 
   /**
-   * Calculate X position for room node
+   * Calculate X position for room node (2 rows of 3)
    */
   private _getRoomX(index: number, totalRooms: number): number {
+    const roomsPerRow = 3;
+    const rowIndex = index % roomsPerRow;  // Position in the row (0, 1, 2)
     const totalWidth = LAYOUT.width - 2 * LAYOUT.margin_left;
-    const spacing = totalWidth / (totalRooms + 1);
-    return LAYOUT.margin_left + spacing * (index + 1);
+    const spacing = totalWidth / (roomsPerRow + 1);
+    return LAYOUT.margin_left + spacing * (rowIndex + 1);
+  }
+
+  /**
+   * Calculate Y position for room node (2 rows of 3)
+   */
+  private _getRoomY(index: number): number {
+    const roomsPerRow = 3;
+    const row = Math.floor(index / roomsPerRow);  // Which row (0 or 1)
+    return LAYOUT.room_y_row1 + (row * LAYOUT.room_row_spacing);
   }
 
   protected render(): TemplateResult {
@@ -357,22 +368,22 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.15" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 35}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(outside.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 5}" class="node-icon">☁️</text>
+        <text x="${x}" y="${y + 8}" class="node-icon">☁️</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && outside.rate !== undefined ? svg`
-          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(outside.rate)}
           </text>
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">Outside</text>
+        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">Outside</text>
       </g>
     `;
   }
@@ -386,21 +397,16 @@ export class BermThermalFlowCard extends LitElement {
       <g class="node ${CSS_CLASSES.fan} ${fan.offline ? 'offline' : ''}" data-fan-index="${index}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="#808080" fill-opacity="${fan.offline ? 0.1 : 0.25}" />
 
-        <!-- Fan speed (top) -->
-        <text x="${x}" y="${y - r + 32}" class="${CSS_CLASSES.primary_text}">
-          ${fan.offline ? 'OFF' : `Speed ${fan.speed}`}
+        <!-- Just the number in the center -->
+        <text x="${x}" y="${y}" class="fan-number">
+          ${fan.offline ? 'OFF' : fan.speed}
         </text>
 
-        <!-- Icon (center) -->
-        <text x="${x}" y="${y + 5}" class="node-icon">${fan.offline ? '⭕' : '⚙️'}</text>
-
-        <!-- Power hidden - not important per user -->
-
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">${fan.name}</text>
+        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">${fan.name}</text>
 
         ${fan.offline ? svg`
-          <text x="${x}" y="${y + r + 48}" class="offline-text">OFFLINE</text>
+          <text x="${x}" y="${y + r + 52}" class="offline-text">OFFLINE</text>
         ` : ''}
       </g>
     `;
@@ -409,7 +415,7 @@ export class BermThermalFlowCard extends LitElement {
   private _renderRoomNode(room: RoomState, index: number, totalRooms: number): SVGTemplateResult {
     const { display } = this._config!;
     const x = this._getRoomX(index, totalRooms);
-    const y = LAYOUT.room_y;
+    const y = this._getRoomY(index);
     const r = LAYOUT.room_radius;
     const isStatic = room.fan_index === undefined || room.fan_index === null;
 
@@ -418,22 +424,22 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.2" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 35}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(room.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 5}" class="node-icon">🏠</text>
+        <text x="${x}" y="${y + 8}" class="node-icon">🏠</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && room.delta !== undefined ? svg`
-          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(room.delta)}
           </text>
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">${room.name}</text>
+        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">${room.name}</text>
       </g>
     `;
   }
@@ -449,22 +455,22 @@ export class BermThermalFlowCard extends LitElement {
         <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.2" />
 
         <!-- Temperature (top) -->
-        <text x="${x}" y="${y - r + 32}" class="${CSS_CLASSES.primary_text}">
+        <text x="${x}" y="${y - r + 42}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(greenhouse.temperature, display?.temperature_unit)}
         </text>
 
         <!-- Icon (center) -->
-        <text x="${x}" y="${y + 5}" class="node-icon">🌿</text>
+        <text x="${x}" y="${y + 8}" class="node-icon">🌿</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && greenhouse.delta !== undefined ? svg`
-          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 30}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(greenhouse.delta)}
           </text>
         ` : ''}
 
         <!-- Label (below circle, consistent with other nodes) -->
-        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">Greenhouse</text>
+        <text x="${x}" y="${y + r + 32}" class="${CSS_CLASSES.label}">Greenhouse</text>
       </g>
     `;
   }

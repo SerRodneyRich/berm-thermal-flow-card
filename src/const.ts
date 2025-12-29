@@ -87,40 +87,42 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - optimized for readability with good spacing
+  // Card dimensions
   width: 1200,
-  height: 900,
+  height: 1000,
 
-  // Node sizes - significantly larger like Power Flow Plus
-  outside_radius: 90,
-  fan_radius: 75,
-  room_radius: 85,
-  greenhouse_radius: 85,
+  // Node sizes - MASSIVE like Power Flow Plus
+  outside_radius: 110,
+  fan_radius: 95,
+  room_radius: 105,
+  greenhouse_radius: 105,
 
-  // Spacing - generous spacing to prevent overlaps
-  fan_spacing: 200,
-  room_spacing: 200,
+  // Spacing - for 2 rows of rooms
+  fan_spacing: 220,
+  room_spacing: 320,  // More space since we'll have 3 per row
+  room_row_spacing: 260,  // Vertical spacing between room rows
 
-  // Vertical positions - much more vertical space between rows
-  outside_y: 130,
-  fan_y: 330,
-  room_y: 600,
-  greenhouse_y: 820,
+  // Vertical positions
+  outside_y: 140,
+  fan_y: 360,
+  room_y_row1: 630,   // First row of 3 rooms
+  room_y_row2: 630,   // Second row will be same Y but we'll handle in code if needed
+  greenhouse_y: 880,
 
   // Margins
-  margin_left: 70,
-  margin_top: 30,
+  margin_left: 80,
+  margin_top: 40,
 
-  // Text sizes - much larger for readability
-  primary_font_size: 28,
-  secondary_font_size: 16,
-  label_font_size: 18,
+  // Text sizes - LARGE
+  primary_font_size: 36,
+  secondary_font_size: 18,
+  label_font_size: 20,
 
   // Icon sizes
-  icon_size: 48,
+  icon_size: 56,
 
   // Animation
-  stroke_width: 4,
+  stroke_width: 5,
   stroke_width_inactive: 2,
 };
 
