@@ -243,7 +243,7 @@ export class BermThermalFlowCard extends LitElement {
   private _getRoomY(index: number): number {
     const roomsPerRow = 3;
     const row = Math.floor(index / roomsPerRow);  // Which row (0 or 1)
-    return LAYOUT.room_y_row1 + (row * LAYOUT.room_row_spacing);
+    return LAYOUT.room_y_row1 + (row * LAYOUT.row_spacing);
   }
 
   protected render(): TemplateResult {
