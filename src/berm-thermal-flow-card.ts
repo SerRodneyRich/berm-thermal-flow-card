@@ -60,10 +60,8 @@ export class BermThermalFlowCard extends LitElement {
   }
 
   @property({ attribute: false }) public hass!: HomeAssistant;
-  @state() private _config!: BermThermalFlowCardConfig;
-  @state() private _cardState!: CardState;
+  @state() private _config?: BermThermalFlowCardConfig;
   @state() private _error?: string;
-  @state() private _loading: boolean = true;
 
   static get styles() {
     return styles;
@@ -84,66 +82,15 @@ export class BermThermalFlowCard extends LitElement {
     return 12;
   }
 
-  protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (!this._config) {
-      return false;
-    }
-
-    if (changedProps.has('_config')) {
-      return true;
-    }
-
-    if (changedProps.has('hass')) {
-      return this._updateCardState();
-    }
-
-    return true;
-  }
-
-  protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
-
-    if (changedProps.has('hass') && this.hass) {
-      if (this._loading) {
-        this._loading = false;
-      }
-      // Ensure card state is computed on first hass update
-      if (!this._cardState) {
-        this._updateCardState();
-        this.requestUpdate();
-      }
-    }
-  }
-
-  /**
-   * Update card state from Home Assistant entities
-   */
-  private _updateCardState(): boolean {
-    if (!this.hass || !this._config) {
-      return false;
-    }
-
-    try {
-      const newState = this._computeCardState();
-
-      // Check if state actually changed (to avoid unnecessary re-renders)
-      if (JSON.stringify(newState) !== JSON.stringify(this._cardState)) {
-        this._cardState = newState;
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Error updating card state:', error);
-      return false;
-    }
+  protected shouldUpdate(_changedProps: PropertyValues): boolean {
+    return !!(this._config && this.hass);
   }
 
   /**
    * Compute card state from HA entities
    */
   private _computeCardState(): CardState {
-    const { entities, colors, temperature_thresholds } = this._config;
+    const { entities, colors, temperature_thresholds } = this._config!;
 
     // Outside state
     const outsideTemp = getEntityStateNumber(this.hass, entities.outside.temperature, 70);
@@ -159,7 +106,7 @@ export class BermThermalFlowCard extends LitElement {
     };
 
     // Fan states
-    const fans: FanState[] = entities.fans.map(fanConfig => {
+    const fans: FanState[] = entities.fans.map((fanConfig: any) => {
       const speed = Math.round(getEntityStateNumber(this.hass, fanConfig.speed, 0));
       const power = getFanPower(speed, fanConfig.power_map || DEFAULT_FAN_POWER_MAP);
 
@@ -173,7 +120,7 @@ export class BermThermalFlowCard extends LitElement {
     });
 
     // Room states
-    const rooms: RoomState[] = entities.rooms.map(roomConfig => {
+    const rooms: RoomState[] = entities.rooms.map((roomConfig: any) => {
       const temp = getEntityStateNumber(this.hass, roomConfig.temperature, 70);
       const delta = roomConfig.delta
         ? getEntityStateNumber(this.hass, roomConfig.delta, 0)
@@ -214,14 +161,14 @@ export class BermThermalFlowCard extends LitElement {
   /**
    * Generate flow lines for animation
    */
-  private _generateFlowLines(): FlowLine[] {
-    if (!this._cardState || !this._config) {
+  private _generateFlowLines(cardState: CardState): FlowLine[] {
+    if (!this._config) {
       return [];
     }
 
     const lines: FlowLine[] = [];
-    const { fans, rooms } = this._cardState;
-    const { animation } = this._config;
+    const { fans, rooms } = cardState;
+    const { animation } = this._config!;
 
     // Calculate positions
     const fanY = LAYOUT.fan_y;
@@ -241,7 +188,7 @@ export class BermThermalFlowCard extends LitElement {
         to: { x: fanX, y: fanY },
         speed: fan.speed,
         animationDuration: active ? getAnimationDuration(fan.speed, animation!) : 0,
-        color: this._cardState.outside.color,
+        color: cardState.outside.color,
         active: active,
       });
     });
@@ -289,44 +236,34 @@ export class BermThermalFlowCard extends LitElement {
   }
 
   protected render(): TemplateResult {
-    if (this._error) {
-      return this._renderError(this._error);
+    if (!this._config || !this.hass) {
+      return html``;
     }
 
-    if (this._loading || !this._config || !this._cardState) {
-      return this._renderLoading();
+    if (this._error) {
+      return html`
+        <ha-card>
+          <div class="error">
+            <div class="error-icon">⚠️</div>
+            <div>${this._error}</div>
+          </div>
+        </ha-card>
+      `;
     }
+
+    const cardState = this._computeCardState();
 
     return html`
       <ha-card>
         <div class="card-content">
-          ${this._renderSVG()}
+          ${this._renderSVG(cardState)}
         </div>
       </ha-card>
     `;
   }
 
-  private _renderError(error: string): TemplateResult {
-    return html`
-      <ha-card>
-        <div class="error">
-          <div class="error-icon">⚠️</div>
-          <div>${error}</div>
-        </div>
-      </ha-card>
-    `;
-  }
-
-  private _renderLoading(): TemplateResult {
-    return html`
-      <ha-card>
-        <div class="loading">Loading</div>
-      </ha-card>
-    `;
-  }
-
-  private _renderSVG(): TemplateResult {
-    const flowLines = this._generateFlowLines();
+  private _renderSVG(cardState: CardState): TemplateResult {
+    const flowLines = this._generateFlowLines(cardState);
 
     return html`
       <svg viewBox="0 0 ${LAYOUT.width} ${LAYOUT.height}" xmlns="http://www.w3.org/2000/svg">
@@ -336,26 +273,26 @@ export class BermThermalFlowCard extends LitElement {
         </g>
 
         <!-- Outside temperature node -->
-        ${this._renderOutsideNode()}
+        ${this._renderOutsideNode(cardState)}
 
         <!-- Fan nodes -->
         <g class="fan-nodes">
-          ${this._cardState.fans.map((fan, index) => this._renderFanNode(fan, index))}
+          ${cardState.fans.map((fan, index) => this._renderFanNode(fan, index, cardState.fans.length))}
         </g>
 
         <!-- Room nodes -->
         <g class="room-nodes">
-          ${this._cardState.rooms.map((room, index) => this._renderRoomNode(room, index))}
+          ${cardState.rooms.map((room, index) => this._renderRoomNode(room, index, cardState.rooms.length))}
         </g>
 
         <!-- Greenhouse node (if enabled) -->
-        ${this._cardState.greenhouse ? this._renderGreenhouseNode() : ''}
+        ${cardState.greenhouse ? this._renderGreenhouseNode(cardState.greenhouse) : ''}
       </svg>
     `;
   }
 
   private _renderFlowLine(line: FlowLine): TemplateResult {
-    const { animation } = this._config;
+    const { animation } = this._config!;
 
     return html`
       <g class="flow-line-group">
@@ -374,7 +311,7 @@ export class BermThermalFlowCard extends LitElement {
   }
 
   private _renderFlowDots(line: FlowLine): TemplateResult {
-    const { animation } = this._config;
+    const { animation } = this._config!;
     const dotCount = animation?.dots_per_line || 3;
     const dotSize = animation?.dot_size || 6;
 
@@ -398,15 +335,15 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderOutsideNode(): TemplateResult {
-    const { outside } = this._cardState;
-    const { display } = this._config;
+  private _renderOutsideNode(cardState: CardState): TemplateResult {
+    const { outside } = cardState;
+    const { display } = this._config!;
     const x = LAYOUT.width / 2;
     const y = LAYOUT.outside_y;
     const r = LAYOUT.outside_radius;
 
     return html`
-      <g class="node ${CSS_CLASSES.outside}" data-entity="${this._config.entities.outside.temperature}">
+      <g class="node ${CSS_CLASSES.outside}" data-entity="${this._config!.entities.outside.temperature}">
         <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.2" />
 
         <!-- Temperature -->
@@ -427,9 +364,9 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderFanNode(fan: FanState, index: number): TemplateResult {
-    const { display } = this._config;
-    const x = this._getFanX(index, this._cardState.fans.length);
+  private _renderFanNode(fan: FanState, index: number, totalFans: number): TemplateResult {
+    const { display } = this._config!;
+    const x = this._getFanX(index, totalFans);
     const y = LAYOUT.fan_y;
     const r = LAYOUT.fan_radius;
 
@@ -459,9 +396,9 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderRoomNode(room: RoomState, index: number): TemplateResult {
-    const { display } = this._config;
-    const x = this._getRoomX(index, this._cardState.rooms.length);
+  private _renderRoomNode(room: RoomState, index: number, totalRooms: number): TemplateResult {
+    const { display } = this._config!;
+    const x = this._getRoomX(index, totalRooms);
     const y = LAYOUT.room_y;
     const r = LAYOUT.room_radius;
     const isStatic = room.fan_index === undefined || room.fan_index === null;
@@ -488,11 +425,8 @@ export class BermThermalFlowCard extends LitElement {
     `;
   }
 
-  private _renderGreenhouseNode(): TemplateResult {
-    const { greenhouse } = this._cardState;
-    if (!greenhouse) return html``;
-
-    const { display } = this._config;
+  private _renderGreenhouseNode(greenhouse: GreenhouseState): TemplateResult {
+    const { display } = this._config!;
     const x = LAYOUT.width / 2;
     const y = LAYOUT.greenhouse_y;
     const r = LAYOUT.greenhouse_radius;
