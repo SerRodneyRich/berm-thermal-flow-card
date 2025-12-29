@@ -87,9 +87,9 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - 3 column layout, MUCH taller for stacked rooms
+  // Card dimensions - fit viewport properly
   width: 1400,
-  height: 2000,
+  height: 1200,
 
   // Node sizes - MASSIVE circles
   outside_radius: 150,
@@ -102,11 +102,11 @@ export const LAYOUT = {
   room_x: 700,           // Column 2 (middle)
   greenhouse_x: 1150,    // Column 3 (right)
 
-  // Vertical positions
-  outside_y: 1000,       // Outside centered vertically in tall card
-  room_start_y: 200,     // First room starts here
-  room_spacing: 310,     // Room diameter (280) + 30px gap = 310
-  greenhouse_y: 1000,    // Greenhouse centered vertically
+  // Vertical positions - tighter for viewport
+  outside_y: 600,        // Outside centered vertically
+  room_start_y: 160,     // First room starts here
+  room_spacing: 175,     // Tight spacing to fit in viewport
+  greenhouse_y: 600,     // Greenhouse centered vertically
 
   // Margins
   margin_left: 100,
@@ -115,14 +115,14 @@ export const LAYOUT = {
   // Text sizes - HUGE
   primary_font_size: 42,
   secondary_font_size: 22,
-  label_font_size: 24,
+  label_font_size: 26,
 
   // Icon sizes
   icon_size: 70,
 
   // Animation
-  stroke_width: 6,
-  stroke_width_inactive: 2,
+  stroke_width: 8,  // THICK flow lines
+  stroke_width_inactive: 3,
 };
 
 /**

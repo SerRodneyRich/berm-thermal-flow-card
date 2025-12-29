@@ -334,7 +334,7 @@ export class BermThermalFlowCard extends LitElement {
 
     return svg`
       <g class="node ${CSS_CLASSES.outside}" data-entity="${this._config!.entities.outside.temperature}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.15" />
+        <circle cx="${x}" cy="${y}" r="${r}" stroke="${outside.color}" stroke-width="6" fill="none" />
 
         <!-- Temperature (top) -->
         <text x="${x}" y="${y - r + 50}" class="${CSS_CLASSES.primary_text}">
@@ -352,7 +352,7 @@ export class BermThermalFlowCard extends LitElement {
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 38}" class="${CSS_CLASSES.label}">Outside</text>
+        <text x="${x}" y="${y + r + 38}" class="label">Outside</text>
       </g>
     `;
   }
@@ -365,17 +365,27 @@ export class BermThermalFlowCard extends LitElement {
     const r = LAYOUT.room_radius;
     const isStatic = room.fan_index === undefined || room.fan_index === null;
 
+    // Icon outline color based on heating/cooling
+    const delta = room.delta || 0;
+    const outlineWidth = Math.min(Math.abs(delta) * 2, 12);  // Thicker = more heating/cooling
+    const outlineColor = delta > 0 ? '#ff4444' : delta < 0 ? '#4444ff' : '#888';  // Red=heating, Blue=cooling
+
     return svg`
       <g class="node ${CSS_CLASSES.room} ${isStatic ? 'static' : ''}" data-room-index="${index}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.2" />
+        <circle cx="${x}" cy="${y}" r="${r}" stroke="${room.color}" stroke-width="6" fill="none" />
 
         <!-- Temperature (top) -->
         <text x="${x}" y="${y - r + 48}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(room.temperature, display?.temperature_unit)}
         </text>
 
-        <!-- Icon (center) -->
-        <text x="${x}" y="${y + 10}" class="node-icon">🏠</text>
+        <!-- Icon (center) with colored outline -->
+        <text x="${x}" y="${y + 10}" class="node-icon" style="
+          paint-order: stroke fill;
+          stroke: ${outlineColor};
+          stroke-width: ${outlineWidth}px;
+          stroke-linejoin: round;
+        ">🏠</text>
 
         <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && room.delta !== undefined ? svg`
@@ -385,7 +395,7 @@ export class BermThermalFlowCard extends LitElement {
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 36}" class="${CSS_CLASSES.label}">${room.name}</text>
+        <text x="${x}" y="${y + r + 36}" class="label">${room.name}</text>
       </g>
     `;
   }
@@ -398,7 +408,7 @@ export class BermThermalFlowCard extends LitElement {
 
     return svg`
       <g class="node ${CSS_CLASSES.greenhouse}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.2" />
+        <circle cx="${x}" cy="${y}" r="${r}" stroke="${greenhouse.color}" stroke-width="6" fill="none" />
 
         <!-- Temperature (top) -->
         <text x="${x}" y="${y - r + 50}" class="${CSS_CLASSES.primary_text}">
@@ -416,7 +426,7 @@ export class BermThermalFlowCard extends LitElement {
         ` : ''}
 
         <!-- Label (below circle) -->
-        <text x="${x}" y="${y + r + 38}" class="${CSS_CLASSES.label}">Greenhouse</text>
+        <text x="${x}" y="${y + r + 38}" class="label">Greenhouse</text>
       </g>
     `;
   }

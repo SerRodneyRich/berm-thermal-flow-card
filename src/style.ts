@@ -30,8 +30,8 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
-    min-height: 1000px;
-    aspect-ratio: 1400 / 2000;
+    min-height: 700px;
+    aspect-ratio: 1400 / 1200;
     display: block;
   }
 
@@ -48,6 +48,7 @@ export const styles = css`
   .node circle {
     stroke-width: 6;
     stroke: var(--primary-text-color);
+    fill: none !important;  /* No background fills */
     transition: all 0.3s ease;
   }
 
@@ -76,9 +77,16 @@ export const styles = css`
   }
 
   .label-text {
-    font-size: 24px;
-    font-weight: 500;
-    fill: #ffffff;  /* White labels for dark background */
+    font-size: 26px;
+    font-weight: 600;
+    fill: #ffffff !important;  /* White labels for dark background */
+    text-anchor: middle;
+  }
+
+  .label {
+    font-size: 26px;
+    font-weight: 600;
+    fill: #ffffff !important;  /* White labels */
     text-anchor: middle;
   }
 
@@ -107,13 +115,13 @@ export const styles = css`
   }
 
   .flow-line.inactive {
-    stroke-width: 1;
+    stroke-width: 3;
     stroke: var(--divider-color);
     stroke-dasharray: 5, 5;
   }
 
   .flow-line.active {
-    stroke-width: 3;
+    stroke-width: 8;  /* THICK flow lines */
   }
 
   /* Animated dots on flow lines */
