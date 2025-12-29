@@ -10,7 +10,7 @@ export const styles = css`
   }
 
   ha-card {
-    padding: 16px;
+    padding: 24px;
     background: var(--ha-card-background, var(--card-background-color, white));
     border-radius: var(--ha-card-border-radius, 12px);
     box-shadow: var(
@@ -30,8 +30,8 @@ export const styles = css`
   svg {
     width: 100%;
     height: auto;
-    min-height: 300px;
-    aspect-ratio: 1000 / 600;
+    min-height: 500px;
+    aspect-ratio: 1000 / 850;
     display: block;
   }
 
@@ -46,7 +46,7 @@ export const styles = css`
   }
 
   .node circle {
-    stroke-width: 2;
+    stroke-width: 4;
     stroke: var(--primary-text-color);
     transition: all 0.3s ease;
   }
@@ -63,23 +63,31 @@ export const styles = css`
 
   /* Text styles */
   .primary-text {
-    font-size: 18px;
+    font-size: 28px;
     font-weight: bold;
     fill: var(--primary-text-color);
     text-anchor: middle;
   }
 
   .secondary-text {
-    font-size: 12px;
+    font-size: 16px;
     fill: var(--secondary-text-color);
     text-anchor: middle;
   }
 
   .label-text {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 500;
     fill: var(--primary-text-color);
     text-anchor: middle;
+  }
+
+  /* Icon styles */
+  .node-icon {
+    font-size: 48px;
+    fill: var(--primary-text-color);
+    text-anchor: middle;
+    dominant-baseline: middle;
   }
 
   .offline-text {
@@ -159,15 +167,19 @@ export const styles = css`
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .primary-text {
-      font-size: 16px;
+      font-size: 24px;
     }
 
     .secondary-text {
-      font-size: 10px;
+      font-size: 14px;
     }
 
     .label-text {
-      font-size: 12px;
+      font-size: 16px;
+    }
+
+    .node-icon {
+      font-size: 40px;
     }
   }
 

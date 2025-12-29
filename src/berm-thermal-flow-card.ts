@@ -354,53 +354,53 @@ export class BermThermalFlowCard extends LitElement {
 
     return svg`
       <g class="node ${CSS_CLASSES.outside}" data-entity="${this._config!.entities.outside.temperature}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.2" />
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${outside.color}" fill-opacity="0.15" />
 
-        <!-- Temperature -->
-        <text x="${x}" y="${y - 5}" class="${CSS_CLASSES.primary_text}">
+        <!-- Temperature (top) -->
+        <text x="${x}" y="${y - r + 35}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(outside.temperature, display?.temperature_unit)}
         </text>
 
-        <!-- Rate of change (if available and enabled) -->
+        <!-- Icon (center) -->
+        <text x="${x}" y="${y + 5}" class="node-icon">☁️</text>
+
+        <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && outside.rate !== undefined ? svg`
-          <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(outside.rate)}
           </text>
         ` : ''}
 
-        <!-- Label -->
-        <text x="${x}" y="${y + r + 20}" class="${CSS_CLASSES.label}">Outside</text>
+        <!-- Label (below circle) -->
+        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">Outside</text>
       </g>
     `;
   }
 
   private _renderFanNode(fan: FanState, index: number, totalFans: number): SVGTemplateResult {
-    const { display } = this._config!;
     const x = this._getFanX(index, totalFans);
     const y = LAYOUT.fan_y;
     const r = LAYOUT.fan_radius;
 
     return svg`
       <g class="node ${CSS_CLASSES.fan} ${fan.offline ? 'offline' : ''}" data-fan-index="${index}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="#808080" fill-opacity="${fan.offline ? 0.1 : 0.3}" />
+        <circle cx="${x}" cy="${y}" r="${r}" fill="#808080" fill-opacity="${fan.offline ? 0.1 : 0.25}" />
 
-        <!-- Fan speed -->
-        <text x="${x}" y="${y - 10}" class="${CSS_CLASSES.primary_text}">
-          ${fan.offline ? 'OFF' : fan.speed}
+        <!-- Fan speed (top) -->
+        <text x="${x}" y="${y - r + 32}" class="${CSS_CLASSES.primary_text}">
+          ${fan.offline ? 'OFF' : `Speed ${fan.speed}`}
         </text>
 
-        <!-- Power consumption (if enabled) -->
-        ${display?.show_power && !fan.offline ? svg`
-          <text x="${x}" y="${y + 10}" class="${CSS_CLASSES.secondary_text}">
-            ${formatPower(fan.power)}
-          </text>
-        ` : ''}
+        <!-- Icon (center) -->
+        <text x="${x}" y="${y + 5}" class="node-icon">${fan.offline ? '⭕' : '⚙️'}</text>
 
-        <!-- Label -->
-        <text x="${x}" y="${y + r + 20}" class="${CSS_CLASSES.label}">${fan.name}</text>
+        <!-- Power hidden - not important per user -->
+
+        <!-- Label (below circle) -->
+        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">${fan.name}</text>
 
         ${fan.offline ? svg`
-          <text x="${x}" y="${y + r + 35}" class="offline-text">OFFLINE</text>
+          <text x="${x}" y="${y + r + 48}" class="offline-text">OFFLINE</text>
         ` : ''}
       </g>
     `;
@@ -415,22 +415,25 @@ export class BermThermalFlowCard extends LitElement {
 
     return svg`
       <g class="node ${CSS_CLASSES.room} ${isStatic ? 'static' : ''}" data-room-index="${index}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.3" />
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${room.color}" fill-opacity="0.2" />
 
-        <!-- Temperature -->
-        <text x="${x}" y="${y - 5}" class="${CSS_CLASSES.primary_text}">
+        <!-- Temperature (top) -->
+        <text x="${x}" y="${y - r + 35}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(room.temperature, display?.temperature_unit)}
         </text>
 
-        <!-- Rate of change (if available and enabled) -->
+        <!-- Icon (center) -->
+        <text x="${x}" y="${y + 5}" class="node-icon">🏠</text>
+
+        <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && room.delta !== undefined ? svg`
-          <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(room.delta)}
           </text>
         ` : ''}
 
-        <!-- Label -->
-        <text x="${x}" y="${y + r + 20}" class="${CSS_CLASSES.label}">${room.name}</text>
+        <!-- Label (below circle) -->
+        <text x="${x}" y="${y + r + 28}" class="${CSS_CLASSES.label}">${room.name}</text>
       </g>
     `;
   }
@@ -443,22 +446,25 @@ export class BermThermalFlowCard extends LitElement {
 
     return svg`
       <g class="node ${CSS_CLASSES.greenhouse}">
-        <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.3" />
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${greenhouse.color}" fill-opacity="0.2" />
 
-        <!-- Temperature -->
-        <text x="${x}" y="${y - 5}" class="${CSS_CLASSES.primary_text}">
+        <!-- Temperature (top) -->
+        <text x="${x}" y="${y - r + 32}" class="${CSS_CLASSES.primary_text}">
           ${formatTemperature(greenhouse.temperature, display?.temperature_unit)}
         </text>
 
-        <!-- Rate of change (if available and enabled) -->
+        <!-- Icon (center) -->
+        <text x="${x}" y="${y + 5}" class="node-icon">🌿</text>
+
+        <!-- Rate of change (bottom) -->
         ${display?.show_rate_of_change && greenhouse.delta !== undefined ? svg`
-          <text x="${x}" y="${y + 15}" class="${CSS_CLASSES.secondary_text}">
+          <text x="${x}" y="${y + r - 25}" class="${CSS_CLASSES.secondary_text}">
             ${formatDelta(greenhouse.delta)}
           </text>
         ` : ''}
 
-        <!-- Label -->
-        <text x="${x}" y="${y - r - 10}" class="${CSS_CLASSES.label}">Greenhouse</text>
+        <!-- Label (above circle for greenhouse since it's at bottom) -->
+        <text x="${x}" y="${y - r - 15}" class="${CSS_CLASSES.label}">Greenhouse</text>
       </g>
     `;
   }

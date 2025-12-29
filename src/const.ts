@@ -87,38 +87,41 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions
+  // Card dimensions - increased for better readability
   width: 1000,
-  height: 600,
+  height: 850,
 
-  // Node sizes
-  outside_radius: 60,
-  fan_radius: 45,
-  room_radius: 50,
-  greenhouse_radius: 55,
+  // Node sizes - significantly larger like Power Flow Plus
+  outside_radius: 90,
+  fan_radius: 75,
+  room_radius: 85,
+  greenhouse_radius: 80,
 
-  // Spacing
-  fan_spacing: 150,
-  room_spacing: 160,
+  // Spacing - more generous spacing between nodes
+  fan_spacing: 180,
+  room_spacing: 180,
 
-  // Vertical positions
-  outside_y: 80,
-  fan_y: 220,
-  room_y: 450,
-  greenhouse_y: 560,
+  // Vertical positions - more vertical space between rows
+  outside_y: 120,
+  fan_y: 320,
+  room_y: 620,
+  greenhouse_y: 760,
 
   // Margins
-  margin_left: 50,
-  margin_top: 20,
+  margin_left: 60,
+  margin_top: 30,
 
-  // Text sizes
-  primary_font_size: 18,
-  secondary_font_size: 12,
-  label_font_size: 14,
+  // Text sizes - much larger for readability
+  primary_font_size: 28,
+  secondary_font_size: 16,
+  label_font_size: 18,
+
+  // Icon sizes
+  icon_size: 48,
 
   // Animation
-  stroke_width: 3,
-  stroke_width_inactive: 1,
+  stroke_width: 4,
+  stroke_width_inactive: 2,
 };
 
 /**
