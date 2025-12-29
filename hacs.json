@@ -1,5 +1,6 @@
 {
   "name": "Berm Thermal Flow Card",
+  "content_in_root": true,
   "filename": "berm-thermal-flow-card.js",
   "render_readme": true,
   "homeassistant": "2024.1.0"
