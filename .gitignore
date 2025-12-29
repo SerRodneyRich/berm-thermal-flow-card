@@ -9,6 +9,9 @@ dist/
 *.js.map
 *.d.ts
 
+# BUT: Don't ignore the main card file (needed for HACS)
+!berm-thermal-flow-card.js
+
 # IDEs
 .vscode/
 .idea/

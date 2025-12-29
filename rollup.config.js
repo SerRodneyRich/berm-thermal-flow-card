@@ -9,7 +9,7 @@ import serve from 'rollup-plugin-serve';
 const dev = process.env.ROLLUP_WATCH;
 
 const serveOptions = {
-  contentBase: ['./dist'],
+  contentBase: ['./'],
   host: '0.0.0.0',
   port: 5000,
   allowCrossOrigin: true,
@@ -55,11 +55,18 @@ const plugins = [
 
 export default {
   input: 'src/berm-thermal-flow-card.ts',
-  output: {
-    file: 'dist/berm-thermal-flow-card.js',
-    format: 'es',
-    sourcemap: dev,
-  },
+  output: [
+    {
+      file: 'berm-thermal-flow-card.js',  // Root directory for HACS
+      format: 'es',
+      sourcemap: dev,
+    },
+    {
+      file: 'dist/berm-thermal-flow-card.js',  // Also output to dist/
+      format: 'es',
+      sourcemap: dev,
+    },
+  ],
   plugins,
   onwarn(warning, warn) {
     // Suppress certain warnings
