@@ -87,14 +87,14 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - FIT VIEWPORT
+  // Card dimensions - PROPERLY DESIGNED
   width: 1200,
-  height: 800,
+  height: 850,
 
-  // Node sizes - Large but reasonable
+  // Node sizes - CALCULATED to fit 6 rooms
   outside_radius: 100,
   fan_radius: 0,  // No fan circles!
-  room_radius: 90,
+  room_radius: 55,  // 110px diameter
   greenhouse_radius: 100,
 
   // 3-column positions (Outside | Rooms | Greenhouse)
@@ -102,23 +102,24 @@ export const LAYOUT = {
   room_x: 600,           // Column 2 (middle)
   greenhouse_x: 1000,    // Column 3 (right)
 
-  // Vertical positions - proper spacing, no overlap
-  outside_y: 400,        // Outside centered vertically
-  room_start_y: 120,     // First room starts here
-  room_spacing: 115,     // Room diameter (180) + gap, fit 6 rooms in 800px
-  greenhouse_y: 400,     // Greenhouse centered vertically
+  // Vertical positions - DESIGNED LAYOUT
+  // 6 rooms × 125px per slot = 750px, centered in 850px card
+  outside_y: 425,        // Outside centered vertically
+  room_start_y: 112,     // Start with 50px margin, first room center at 112 (50 + 55 + 7)
+  room_spacing: 125,     // 110px diameter + 15px gap = 125px between centers
+  greenhouse_y: 425,     // Greenhouse centered vertically
 
   // Margins
   margin_left: 80,
-  margin_top: 40,
+  margin_top: 50,
 
   // Text sizes
-  primary_font_size: 32,
-  secondary_font_size: 18,
-  label_font_size: 22,
+  primary_font_size: 28,
+  secondary_font_size: 16,
+  label_font_size: 20,
 
   // Icon sizes
-  icon_size: 56,
+  icon_size: 48,
 
   // Animation
   stroke_width: 8,  // THICK flow lines

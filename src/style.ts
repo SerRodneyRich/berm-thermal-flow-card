@@ -31,8 +31,8 @@ export const styles = css`
     width: 100%;
     height: auto;
     min-height: 600px;
-    max-height: 800px;
-    aspect-ratio: 1200 / 800;
+    max-height: 850px;
+    aspect-ratio: 1200 / 850;
     display: block;
   }
 
@@ -64,27 +64,27 @@ export const styles = css`
 
   /* Text styles */
   .primary-text {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     fill: var(--primary-text-color);
     text-anchor: middle;
   }
 
   .secondary-text {
-    font-size: 18px;
+    font-size: 16px;
     fill: var(--secondary-text-color);
     text-anchor: middle;
   }
 
   .label-text {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     fill: #ffffff !important;  /* White labels for dark background */
     text-anchor: middle;
   }
 
   .label {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     fill: #ffffff !important;  /* White labels */
     text-anchor: middle;
@@ -92,7 +92,7 @@ export const styles = css`
 
   /* Icon styles */
   .node-icon {
-    font-size: 56px;
+    font-size: 48px;
     fill: var(--primary-text-color);
     text-anchor: middle;
     dominant-baseline: middle;
