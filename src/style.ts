@@ -31,8 +31,8 @@ export const styles = css`
     width: 100%;
     height: auto;
     min-height: 600px;
-    max-height: 850px;
-    aspect-ratio: 1200 / 850;
+    max-height: 900px;
+    aspect-ratio: 1200 / 900;
     display: block;
   }
 

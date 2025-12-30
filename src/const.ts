@@ -87,14 +87,14 @@ export const DEFAULT_ICONS = {
  * SVG layout constants (in pixels)
  */
 export const LAYOUT = {
-  // Card dimensions - PROPERLY DESIGNED
+  // Card dimensions - PROFESSIONAL DESIGN (from sub-agent analysis)
   width: 1200,
-  height: 850,
+  height: 900,
 
-  // Node sizes - CALCULATED to fit 6 rooms
+  // Node sizes - OPTIMIZED for readability
   outside_radius: 100,
-  fan_radius: 0,  // No fan circles!
-  room_radius: 55,  // 110px diameter
+  fan_radius: 0,  // No fan circles
+  room_radius: 60,  // 120px diameter
   greenhouse_radius: 100,
 
   // 3-column positions (Outside | Rooms | Greenhouse)
@@ -102,16 +102,15 @@ export const LAYOUT = {
   room_x: 600,           // Column 2 (middle)
   greenhouse_x: 1000,    // Column 3 (right)
 
-  // Vertical positions - DESIGNED LAYOUT
-  // 6 rooms × 125px per slot = 750px, centered in 850px card
-  outside_y: 425,        // Outside centered vertically
-  room_start_y: 112,     // Start with 50px margin, first room center at 112 (50 + 55 + 7)
-  room_spacing: 125,     // 110px diameter + 15px gap = 125px between centers
-  greenhouse_y: 425,     // Greenhouse centered vertically
+  // Vertical positions - NO OVERLAP GUARANTEED
+  outside_y: 450,        // Centered in 900px card
+  room_start_y: 130,     // 70px top margin
+  room_spacing: 130,     // 120px diameter + 10px gap = 130px between centers
+  greenhouse_y: 450,     // Centered in 900px card
 
   // Margins
   margin_left: 80,
-  margin_top: 50,
+  margin_top: 70,
 
   // Text sizes
   primary_font_size: 28,
