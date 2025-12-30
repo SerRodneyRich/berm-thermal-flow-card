@@ -8,7 +8,7 @@ function t(t,e,o,i){var s,r=arguments.length,n=r<3?e:null===i?i=Object.getOwnPro
   }
 
   ha-card {
-    padding: 24px;
+    padding: 16px;
     background: var(--ha-card-background, var(--card-background-color, white));
     border-radius: var(--ha-card-border-radius, 12px);
     box-shadow: var(
@@ -17,6 +17,7 @@ function t(t,e,o,i){var s,r=arguments.length,n=r<3?e:null===i?i=Object.getOwnPro
       0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2)
     );
+    height: auto;
   }
 
   .card-content {
@@ -27,10 +28,7 @@ function t(t,e,o,i){var s,r=arguments.length,n=r<3?e:null===i?i=Object.getOwnPro
 
   svg {
     width: 100%;
-    height: auto;
-    min-height: 600px;
-    max-height: 900px;
-    aspect-ratio: 1200 / 900;
+    height: 900px;
     display: block;
   }
 

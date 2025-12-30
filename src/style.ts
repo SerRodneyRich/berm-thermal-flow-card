@@ -10,7 +10,7 @@ export const styles = css`
   }
 
   ha-card {
-    padding: 24px;
+    padding: 16px;
     background: var(--ha-card-background, var(--card-background-color, white));
     border-radius: var(--ha-card-border-radius, 12px);
     box-shadow: var(
@@ -19,6 +19,7 @@ export const styles = css`
       0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2)
     );
+    height: auto;
   }
 
   .card-content {
@@ -29,10 +30,7 @@ export const styles = css`
 
   svg {
     width: 100%;
-    height: auto;
-    min-height: 600px;
-    max-height: 900px;
-    aspect-ratio: 1200 / 900;
+    height: 900px;
     display: block;
   }
 
